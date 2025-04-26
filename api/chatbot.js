@@ -1,8 +1,8 @@
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 
-const openai = new OpenAIApi(new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-}));
+});
 
 const knowledgeBase = `
 Qui puoi incollare il contenuto del tuo file Word convertito in testo.
@@ -23,14 +23,15 @@ export default async function handler(req, res) {
 
   // Se non trova, usa OpenAI
   try {
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "user", content: question }],
     });
 
-    const answer = completion.data.choices[0].message.content;
+    const answer = completion.choices[0].message.content;
     res.status(200).json({ answer });
   } catch (error) {
+    console.error("Errore durante la chiamata a OpenAI:", error);
     res.status(500).json({ error: "Errore nella richiesta a OpenAI" });
   }
 }
